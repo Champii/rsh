@@ -1,7 +1,7 @@
 use super::error::Error;
 use super::exec::Executor;
 use super::input::Input;
-use super::parser::Parser;
+use super::parsing::Parser;
 
 pub struct RSH {
     input: Input,

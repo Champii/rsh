@@ -27,7 +27,7 @@ extern crate quick_error;
 mod error;
 mod exec;
 mod input;
-mod parser;
+mod parsing;
 mod rsh;
 
 use error::Error;

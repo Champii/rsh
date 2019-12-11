@@ -94,6 +94,13 @@ impl Parser {
 
                         Command::Or(Box::new(Command::Raw(left)), Box::new(right))
                     }
+                    Token::Pipe => {
+                        lexer.advance();
+
+                        let right = self.parse_command(lexer)?;
+
+                        Command::Pipe(Box::new(Command::Raw(left)), Box::new(right))
+                    }
                     _ => Command::Raw(left),
                 }
             }
