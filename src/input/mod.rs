@@ -52,7 +52,7 @@ impl Highlighter for EditorHelper {
     }
 
     fn highlight_hint<'h>(&self, hint: &'h str) -> Cow<'h, str> {
-        Owned("\x1b[1m".to_owned() + hint + "\x1b[m")
+        Owned(format!("\x1b[1m{}\x1b[m", hint))
     }
 
     fn highlight<'l>(&self, line: &'l str, pos: usize) -> Cow<'l, str> {
@@ -82,7 +82,7 @@ impl Input {
             completer: FilenameCompleter::new(),
             highlighter: MatchingBracketHighlighter::new(),
             hinter: HistoryHinter {},
-            colored_prompt: ">> ".to_owned(),
+            colored_prompt: "".to_owned(),
         };
 
         let mut editor = Editor::with_config(config);
@@ -111,8 +111,14 @@ impl Input {
     }
 
     pub fn aquire(&mut self) -> Result<String, Error> {
+        let p = "#> ";
+
+        if let Some(helper) = self.editor.helper_mut() {
+            helper.colored_prompt = format!("\x1b[1;32m{}\x1b[0m", p);
+        };
+
         self.editor
-            .readline(">> ")
+            .readline(&p)
             .map(|line| {
                 self.editor.add_history_entry(line.as_str());
 

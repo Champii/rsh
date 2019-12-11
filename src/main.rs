@@ -23,13 +23,11 @@
 
 #[macro_use]
 extern crate quick_error;
-#[macro_use]
-extern crate rustyline;
-#[macro_use]
-extern crate rustyline_derive;
 
 mod error;
+mod exec;
 mod input;
+mod parser;
 mod rsh;
 
 use error::Error;

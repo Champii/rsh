@@ -1,17 +1,20 @@
-use std::io::{self, Write};
-use std::process::{Command, Stdio};
-
 use super::error::Error;
+use super::exec::Executor;
 use super::input::Input;
+use super::parser::Parser;
 
 pub struct RSH {
     input: Input,
+    executor: Executor,
+    parser: Parser,
 }
 
 impl RSH {
     pub fn new() -> Self {
         Self {
             input: Input::new(),
+            executor: Executor::new(),
+            parser: Parser::new(),
         }
     }
 
@@ -20,7 +23,11 @@ impl RSH {
 
         loop {
             match self.input.aquire() {
-                Ok(line) => self.exec(&line)?,
+                Ok(line) => {
+                    let ast = self.parser.run(&line)?;
+
+                    self.executor.run(ast)?
+                }
                 Err(err) => match err {
                     Error::Interrupt => {}
                     Error::Io(..) | Error::Readline(..) => break,
@@ -29,27 +36,6 @@ impl RSH {
         }
 
         self.input.exit()?;
-
-        Ok(())
-    }
-
-    fn exec(&mut self, cmd: &str) -> Result<(), Error> {
-        if cmd.is_empty() {
-            return Ok(());
-        }
-
-        let line: Vec<&str> = cmd.split(' ').collect::<_>();
-
-        let mut child = match Command::new(&line[0]).args(&line[1..]).spawn() {
-            Ok(child) => child,
-            Err(err) => {
-                println!("Error: {}", err);
-
-                return Ok(());
-            }
-        };
-
-        child.wait()?;
 
         Ok(())
     }
