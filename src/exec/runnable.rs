@@ -31,13 +31,17 @@ impl Runnable for CommandRaw {
             return Err(Error::Run);
         }
 
+        let mut cmd = self.clone();
+
+        super::super::builtins::alias::substitute(&mut cmd);
+
         let builtins = super::super::builtins::get_builtins();
 
-        if let Some(f) = builtins.get(&self.exe) {
-            f(self)
+        if let Some(f) = builtins.get(&cmd.exe) {
+            f(&cmd)
         } else {
-            let child = OSCommand::new(&self.exe)
-                .args(&self.args)
+            let child = OSCommand::new(&cmd.exe)
+                .args(&cmd.args)
                 .spawn()
                 .map_err(|_| Error::Run)?;
 

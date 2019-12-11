@@ -15,38 +15,47 @@ lazy_static! {
 
 fn print_alias() {
     for (name, alias) in ALIAS.read().unwrap().iter() {
-        println!("{}={}", name, alias);
+        println!("{}=\"{}\"", name, alias);
     }
+}
+
+pub fn substitute(cmd: &mut CommandRaw) {
+    let alias = ALIAS.read().unwrap();
+
+    if let Some(res) = alias.get(&cmd.exe) {
+        let res_splited = res
+            .split(' ')
+            .map(|x| (*x).to_string())
+            .collect::<Vec<String>>();
+
+        let exe = res_splited[0].clone();
+
+        let mut res_splited = res_splited[1..].to_vec();
+
+        res_splited.extend_from_slice(&cmd.args);
+
+        cmd.args = res_splited;
+
+        cmd.exe = exe;
+
+        if alias.get(&cmd.exe).is_some() {
+            substitute(cmd);
+        }
+    };
 }
 
 fn alias(cmd: &CommandRaw) -> Result<Child, Error> {
     if cmd.args.is_empty() {
         print_alias();
     } else if cmd.args.len() == 1 {
-        let splited = cmd.args[0]
-            .clone()
-            .split('=')
-            .map(|x| x.to_string())
-            .collect::<Vec<String>>();
+        ALIAS.write().unwrap().remove(&cmd.args[0]);
+    } else if cmd.args.len() == 2 {
+        let val = cmd.args[1].clone();
+        let val = val[1..val.len() - 1].to_string();
 
-        match splited.len() {
-            // Remove
-            1 => ALIAS.write().unwrap().remove(&splited[0]),
-            // Add
-            2 => ALIAS
-                .write()
-                .unwrap()
-                .insert(splited[0].clone(), splited[1].clone()),
-            // Error
-            _ => {
-                println!("Usage: alias [name=[value]]");
-
-                Some(String::new())
-            }
-        };
-        return super::ok_false();
+        ALIAS.write().unwrap().insert(cmd.args[0].clone(), val);
     } else {
-        println!("Usage: alias [name=[value]]");
+        println!("Usage: alias [name [\"value\"]]");
 
         return super::ok_false();
     }

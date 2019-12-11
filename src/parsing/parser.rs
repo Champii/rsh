@@ -46,7 +46,7 @@ impl Parser {
             return Err(Error::Parser("Expected text".to_string()));
         }
 
-        while lexer.token == Token::Text {
+        while lexer.token == Token::Text || lexer.token == Token::String {
             items.push(lexer.slice());
 
             lexer.advance();

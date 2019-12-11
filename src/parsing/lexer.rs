@@ -32,6 +32,9 @@ pub enum Token {
     #[token = ";"]
     SemiColon,
 
+    #[regex = r#""([^"\\]|\\[tu])*""#]
+    String,
+
     #[regex = "[a-zA-Z\\-/\\.=\\+]+"]
     Text,
 }

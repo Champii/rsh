@@ -1,10 +1,13 @@
-use std::collections::HashMap;
-use std::process::{Child, Command};
+use std::{
+    collections::HashMap,
+    process::{Child, Command},
+    sync::{Arc, RwLock},
+};
 
 use super::error::Error;
 use super::parsing::CommandRaw;
 
-mod alias;
+pub mod alias;
 mod cd;
 
 type BuiltinFn = dyn Fn(&CommandRaw) -> Result<Child, Error>;
