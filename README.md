@@ -4,11 +4,9 @@ RSH
 Todo:
 ---
 
-- Strings
-- Builtins
 - Pipes
+- Builtins (job, bg, for, if, ...)
 - Background jobs
 - Config file
-- Alias
 - Prompt management
 - Scripting
