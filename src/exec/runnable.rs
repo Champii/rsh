@@ -33,7 +33,11 @@ impl Runnable for CommandRaw {
 
         let mut cmd = self.clone();
 
-        super::super::builtins::alias::substitute(&mut cmd)?;
+        if cmd.exe.chars().nth(0).unwrap() == '\\' {
+            cmd.exe = cmd.exe[1..].to_string();
+        } else {
+            super::super::builtins::alias::substitute(&mut cmd)?;
+        }
 
         let builtins = super::super::builtins::get_builtins();
 

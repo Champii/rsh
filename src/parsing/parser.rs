@@ -1,8 +1,9 @@
+use logos::Lexer;
+use logos::Logos;
+
 use super::super::error::Error;
 use super::ast::*;
 use super::lexer::Token;
-use logos::Lexer;
-use logos::Logos;
 
 pub struct Parser {}
 
@@ -17,6 +18,13 @@ impl Parser {
         }
 
         let mut lexer = Token::lexer(input);
+        // let mut tmp = Token::lexer(input);
+
+        // while tmp.token != Token::End {
+        //     println!("TOKEN {:?}", tmp.token);
+
+        //     tmp.advance();
+        // }
 
         let ast = self.parse_ast(&mut lexer)?;
 

@@ -24,13 +24,14 @@ impl RSH {
     }
 
     fn load_conf(&mut self) -> Result<(), Error> {
-        //
-        let p = format!("{}/.rsh_history", env!("HOME").to_owned());
+        let p = format!("{}/.rshrc", env!("HOME").to_owned());
+
         let filepath = Path::new(&p);
 
-        self.run(filepath)?;
-
-        Ok(())
+        Ok(match self.run(filepath) {
+            Ok(_) => (),
+            Err(_) => (),
+        })
     }
 
     pub fn run(&mut self, filepath: &Path) -> Result<(), Error> {
@@ -38,7 +39,7 @@ impl RSH {
         let lines = file.split('\n').collect::<Vec<&str>>();
 
         for line in lines {
-            if line.is_empty() {
+            if line.is_empty() || line.chars().nth(0).unwrap() == '#' {
                 continue;
             }
 
