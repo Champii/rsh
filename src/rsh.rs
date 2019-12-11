@@ -10,6 +10,7 @@ pub struct RSH {
     input: Input,
     executor: Executor,
     parser: Parser,
+    #[allow(dead_code)]
     config: Config,
 }
 

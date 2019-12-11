@@ -19,8 +19,16 @@ fn print_alias() -> Result<(), Error> {
         Err(_) => return Err(Error::Mutex),
     };
 
+    let mut v = vec![];
+
     for (name, alias) in alias.iter() {
-        println!("{}=\"{}\"", name, alias);
+        v.push(format!("{}=\"{}\"", name, alias));
+    }
+
+    v.sort();
+
+    for alias in v {
+        println!("{}", alias);
     }
 
     Ok(())
