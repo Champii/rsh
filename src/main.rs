@@ -24,6 +24,7 @@
 #[macro_use]
 extern crate quick_error;
 
+mod builtins;
 mod error;
 mod exec;
 mod input;

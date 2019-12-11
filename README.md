@@ -4,13 +4,11 @@ RSH
 Todo:
 ---
 
-- TTY friendly (stdout colors, ..)
+- Strings
 - Builtins
-- Config file
-- Input parsing
 - Pipes
-- Background
-- Boolean logic (||, &&)
-- Scripting
-- Prompt management
+- Background jobs
+- Config file
 - Alias
+- Prompt management
+- Scripting

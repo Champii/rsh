@@ -103,11 +103,19 @@ impl Input {
     }
 
     pub fn init(&mut self) -> Result<(), Error> {
-        self.editor.load_history("history.txt").map_err(Error::from)
+        match self
+            .editor
+            .load_history(&(env!("HOME").to_owned() + "/.rsh_history"))
+        {
+            Ok(_) => Ok(()),
+            Err(_) => Ok(()),
+        }
     }
 
     pub fn exit(&mut self) -> Result<(), Error> {
-        self.editor.save_history("history.txt").map_err(Error::from)
+        self.editor
+            .save_history(&(env!("HOME").to_owned() + "/.rsh_history"))
+            .map_err(Error::from)
     }
 
     pub fn aquire(&mut self) -> Result<String, Error> {

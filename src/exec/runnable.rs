@@ -31,12 +31,18 @@ impl Runnable for CommandRaw {
             return Err(Error::Run);
         }
 
-        let child = OSCommand::new(&self.exe)
-            .args(&self.args)
-            .spawn()
-            .map_err(|_| Error::Run)?;
+        let builtins = super::super::builtins::get_builtins();
 
-        Ok(child)
+        if let Some(f) = builtins.get(&self.exe) {
+            f(self)
+        } else {
+            let child = OSCommand::new(&self.exe)
+                .args(&self.args)
+                .spawn()
+                .map_err(|_| Error::Run)?;
+
+            Ok(child)
+        }
     }
 }
 

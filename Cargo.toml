@@ -1,6 +1,6 @@
 [package]
-name = "new_rsh"
-version = "0.1.0"
+name = "rsh"
+version = "0.0.1"
 authors = ["Champii <contact@champii.io>"]
 edition = "2018"
 
