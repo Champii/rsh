@@ -3,25 +3,29 @@ use super::super::parser::*;
 use std::process::Command as OSCommand;
 
 pub trait Runnable {
-    fn exec(&self) -> Result<(), Error> {
-        Ok(())
+    fn exec(&self) -> Result<i32, Error> {
+        Ok(0)
     }
 }
 
 impl Runnable for Ast {
-    fn exec(&self) -> Result<(), Error> {
+    fn exec(&self) -> Result<i32, Error> {
         for cmd in &self.0 {
-            cmd.exec()?;
+            let code = cmd.exec()?;
+
+            if code != 0 {
+                return Ok(code);
+            }
         }
 
-        Ok(())
+        Ok(0)
     }
 }
 
 impl Runnable for CommandRaw {
-    fn exec(&self) -> Result<(), Error> {
+    fn exec(&self) -> Result<i32, Error> {
         if self.exe.is_empty() {
-            return Ok(());
+            return Ok(0);
         }
 
         let mut child = match OSCommand::new(&self.exe).args(&self.args).spawn() {
@@ -29,23 +33,39 @@ impl Runnable for CommandRaw {
             Err(err) => {
                 println!("Error: {}", err);
 
-                return Ok(());
+                return Ok(0);
             }
         };
 
-        child.wait()?;
+        let status = child.wait()?;
 
-        Ok(())
+        Ok(status.code().unwrap())
     }
 }
 
 impl Runnable for Command {
-    fn exec(&self) -> Result<(), Error> {
+    fn exec(&self) -> Result<i32, Error> {
         match self {
             Self::Raw(cmd) => cmd.exec(),
             Self::Parenthesis(cmd) => cmd.exec(),
-            Self::And(left, _right) => left.exec(),
-            Self::Or(left, _right) => left.exec(),
+            Self::And(left, right) => {
+                let code = left.exec()?;
+
+                if code == 0 {
+                    right.exec()
+                } else {
+                    Ok(code)
+                }
+            }
+            Self::Or(left, right) => {
+                let code = left.exec()?;
+
+                if code == 0 {
+                    Ok(code)
+                } else {
+                    right.exec()
+                }
+            }
             Self::Pipe(left, _right) => left.exec(),
         }
     }

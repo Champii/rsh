@@ -19,8 +19,8 @@ impl Executor {
 
         match &self.source {
             Some(source) => source.exec()?,
-            None => (),
-        }
+            None => 0,
+        };
 
         Ok(())
     }

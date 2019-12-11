@@ -26,7 +26,7 @@ impl RSH {
                 Ok(line) => {
                     let ast = self.parser.run(&line.clone())?;
 
-                    // println!("{:#?}", ast);
+                    println!("{:#?}", ast);
 
                     self.executor.run(ast)?
                 }
