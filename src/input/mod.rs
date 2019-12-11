@@ -111,10 +111,10 @@ impl Input {
     }
 
     pub fn aquire(&mut self) -> Result<String, Error> {
-        let p = "#> ";
+        let p = "rsh #> ";
 
         if let Some(helper) = self.editor.helper_mut() {
-            helper.colored_prompt = format!("\x1b[1;32m{}\x1b[0m", p);
+            helper.colored_prompt = format!("\x1b[1;33m{}\x1b[1;32m{}\x1b[0m", "rsh ", "#> ");
         };
 
         self.editor

@@ -24,13 +24,15 @@ impl RSH {
         loop {
             match self.input.aquire() {
                 Ok(line) => {
-                    let ast = self.parser.run(&line)?;
+                    let ast = self.parser.run(&line.clone())?;
+
+                    // println!("{:#?}", ast);
 
                     self.executor.run(ast)?
                 }
                 Err(err) => match err {
                     Error::Interrupt => {}
-                    Error::Io(..) | Error::Readline(..) => break,
+                    Error::Parser(..) | Error::Lexer | Error::Io(..) | Error::Readline(..) => break,
                 },
             };
         }

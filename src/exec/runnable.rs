@@ -42,15 +42,7 @@ impl Runnable for CommandRaw {
 impl Runnable for Command {
     fn exec(&self) -> Result<(), Error> {
         match self {
-            Self::Inner(cmd) => cmd.exec(),
             Self::Raw(cmd) => cmd.exec(),
-        }
-    }
-}
-
-impl Runnable for CommandNext {
-    fn exec(&self) -> Result<(), Error> {
-        match self {
             Self::Parenthesis(cmd) => cmd.exec(),
             Self::And(left, _right) => left.exec(),
             Self::Or(left, _right) => left.exec(),
