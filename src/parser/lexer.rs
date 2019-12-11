@@ -32,6 +32,6 @@ pub enum Token {
     #[token = ";"]
     SemiColon,
 
-    #[regex = "[a-zA-Z/\\.-]+"]
+    #[regex = "[a-zA-Z\\-/\\.=\\+]+"]
     Text,
 }

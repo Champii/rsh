@@ -26,13 +26,27 @@ impl RSH {
                 Ok(line) => {
                     let ast = self.parser.run(&line.clone())?;
 
-                    println!("{:#?}", ast);
+                    // println!("{:#?}", ast);
 
-                    self.executor.run(ast)?
+                    match self.executor.run(ast) {
+                        Ok(_) => (),
+                        Err(Error::Run) => {
+                            println!("Error: {}", Error::Run);
+                        }
+                        Err(err) => {
+                            println!("Error: {}", err);
+
+                            return Err(err);
+                        }
+                    }
                 }
                 Err(err) => match err {
                     Error::Interrupt => {}
-                    Error::Parser(..) | Error::Lexer | Error::Io(..) | Error::Readline(..) => break,
+                    Error::Run
+                    | Error::Parser(..)
+                    | Error::Lexer
+                    | Error::Io(..)
+                    | Error::Readline(..) => break,
                 },
             };
         }

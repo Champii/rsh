@@ -1,12 +1,6 @@
 #[derive(Clone, Debug)]
 pub struct Ast(pub Vec<Command>);
 
-// #[derive(Clone, Debug)]
-// pub enum Command {
-//     Inner(CommandNext),
-//     Raw(CommandRaw),
-// }
-
 #[derive(Clone, Debug)]
 pub struct CommandRaw {
     pub exe: String,
@@ -16,7 +10,7 @@ pub struct CommandRaw {
 #[derive(Clone, Debug)]
 pub enum Command {
     Raw(CommandRaw),
-    Parenthesis(Box<Command>),
+    Parenthesis(Box<Ast>),
     And(Box<Command>, Box<Command>),
     Or(Box<Command>, Box<Command>),
     Pipe(Box<Command>, Box<Command>),

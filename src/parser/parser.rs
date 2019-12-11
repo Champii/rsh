@@ -20,23 +20,23 @@ impl Parser {
 
         let ast = self.parse_ast(&mut lexer)?;
 
-        Ok(ast)
+        Ok(Some(ast))
     }
 
-    pub fn parse_ast(&self, lexer: &mut Lexer<Token, &str>) -> Result<Option<Ast>, Error> {
+    pub fn parse_ast(&self, lexer: &mut Lexer<Token, &str>) -> Result<Ast, Error> {
         let mut cmds = vec![];
 
         while lexer.token != Token::End {
             cmds.push(self.parse_command(lexer)?);
 
-            if lexer.token != Token::SemiColon && lexer.token != Token::End {
-                return Err(Error::Parser("Expected semi-colon".to_string()));
+            if lexer.token == Token::SemiColon {
+                lexer.advance();
+            } else {
+                break;
             }
-
-            lexer.advance();
         }
 
-        Ok(Some(Ast { 0: cmds }))
+        Ok(Ast { 0: cmds })
     }
 
     pub fn parse_raw(&self, lexer: &mut Lexer<Token, &str>) -> Result<CommandRaw, Error> {
@@ -66,7 +66,7 @@ impl Parser {
             Token::ParensOpen => {
                 lexer.advance();
 
-                let res = Command::Parenthesis(Box::new(self.parse_command(lexer)?));
+                let res = Command::Parenthesis(Box::new(self.parse_ast(lexer)?));
 
                 if lexer.token != Token::ParensClose {
                     return Err(Error::Parser("Expected close parenthesis".to_string()));

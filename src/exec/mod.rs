@@ -19,7 +19,7 @@ impl Executor {
 
         match &self.source {
             Some(source) => source.exec()?,
-            None => 0,
+            None => return Err(Error::Run),
         };
 
         Ok(())
