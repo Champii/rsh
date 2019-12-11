@@ -8,6 +8,7 @@ use super::parsing::CommandRaw;
 
 pub mod alias;
 mod cd;
+pub mod export;
 
 type BuiltinFn = dyn Fn(&CommandRaw) -> Result<Child, Error>;
 type Builtins = HashMap<String, Box<BuiltinFn>>;
@@ -24,6 +25,7 @@ pub fn get_builtins() -> Builtins {
 
     builtins.insert("cd".to_string(), cd::builtin_cd());
     builtins.insert("alias".to_string(), alias::builtin_alias());
+    builtins.insert("export".to_string(), export::builtin_export());
 
     builtins
 }

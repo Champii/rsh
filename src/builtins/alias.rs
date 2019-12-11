@@ -22,7 +22,7 @@ fn print_alias() -> Result<(), Error> {
     let mut v = vec![];
 
     for (name, alias) in alias.iter() {
-        v.push(format!("{}=\"{}\"", name, alias));
+        v.push(format!("{}={}", name, alias));
     }
 
     v.sort();
