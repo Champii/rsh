@@ -43,6 +43,8 @@ impl RSH {
                 Err(err) => match err {
                     Error::Interrupt => {}
                     Error::Run
+                    | Error::Builtin
+                    | Error::Mutex
                     | Error::Parser(..)
                     | Error::Lexer
                     | Error::Io(..)

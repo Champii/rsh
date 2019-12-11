@@ -16,10 +16,11 @@
 #![allow(clippy::integer_division)]
 #![allow(clippy::match_wild_err_arm)]
 #![allow(clippy::match_same_arms)] //tmp
-#![warn(clippy::print_stdout)] //tmp
+#![allow(clippy::print_stdout)] //tmp
 #![warn(clippy::use_debug)] //tmp
 #![allow(clippy::indexing_slicing)] //false positive on macro attrs
 #![deny(unused_must_use)]
+#![allow(clippy::wildcard_enum_match_arm)] //tmp
 
 #[macro_use]
 extern crate quick_error;

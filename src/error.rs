@@ -3,9 +3,11 @@ quick_error! {
     pub enum Error {
         Parser(err: String)
         Lexer
+        Builtin
         Run
         Interrupt {}
         Io(err: std::io::Error) { from() }
         Readline(err: rustyline::error::ReadlineError) { from() }
+        Mutex
     }
 }

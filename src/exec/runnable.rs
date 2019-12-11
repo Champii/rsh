@@ -33,7 +33,7 @@ impl Runnable for CommandRaw {
 
         let mut cmd = self.clone();
 
-        super::super::builtins::alias::substitute(&mut cmd);
+        super::super::builtins::alias::substitute(&mut cmd)?;
 
         let builtins = super::super::builtins::get_builtins();
 

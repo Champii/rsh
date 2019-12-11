@@ -1,7 +1,6 @@
 use std::{
     collections::HashMap,
     process::{Child, Command},
-    sync::{Arc, RwLock},
 };
 
 use super::error::Error;

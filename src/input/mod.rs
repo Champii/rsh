@@ -105,7 +105,7 @@ impl Input {
     pub fn init(&mut self) -> Result<(), Error> {
         match self
             .editor
-            .load_history(&(env!("HOME").to_owned() + "/.rsh_history"))
+            .load_history(&format!("{}/.rsh_history", env!("HOME").to_owned()))
         {
             Ok(_) => Ok(()),
             Err(_) => Ok(()),
@@ -114,7 +114,7 @@ impl Input {
 
     pub fn exit(&mut self) -> Result<(), Error> {
         self.editor
-            .save_history(&(env!("HOME").to_owned() + "/.rsh_history"))
+            .save_history(&format!("{}/.rsh_history", env!("HOME").to_owned()))
             .map_err(Error::from)
     }
 

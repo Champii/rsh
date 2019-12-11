@@ -39,7 +39,7 @@ impl Parser {
         Ok(Ast { 0: cmds })
     }
 
-    pub fn parse_raw(&self, lexer: &mut Lexer<Token, &str>) -> Result<CommandRaw, Error> {
+    pub fn parse_raw(lexer: &mut Lexer<Token, &str>) -> Result<CommandRaw, Error> {
         let mut items = vec![];
 
         if lexer.token != Token::Text {
@@ -68,47 +68,44 @@ impl Parser {
     }
 
     pub fn parse_command(&self, lexer: &mut Lexer<Token, &str>) -> Result<Command, Error> {
-        Ok(match lexer.token {
-            Token::ParensOpen => {
-                lexer.advance();
+        Ok(if lexer.token == Token::ParensOpen {
+            lexer.advance();
 
-                let res = Command::Parenthesis(Box::new(self.parse_ast(lexer)?));
+            let res = Command::Parenthesis(Box::new(self.parse_ast(lexer)?));
 
-                if lexer.token != Token::ParensClose {
-                    return Err(Error::Parser("Expected close parenthesis".to_string()));
-                }
-
-                lexer.advance();
-
-                res
+            if lexer.token != Token::ParensClose {
+                return Err(Error::Parser("Expected close parenthesis".to_string()));
             }
-            _ => {
-                let left = self.parse_raw(lexer)?;
 
-                match lexer.token {
-                    Token::DoubleAnd => {
-                        lexer.advance();
+            lexer.advance();
 
-                        let right = self.parse_command(lexer)?;
+            res
+        } else {
+            let left = Self::parse_raw(lexer)?;
 
-                        Command::And(Box::new(Command::Raw(left)), Box::new(right))
-                    }
-                    Token::DoublePipe => {
-                        lexer.advance();
+            match lexer.token {
+                Token::DoubleAnd => {
+                    lexer.advance();
 
-                        let right = self.parse_command(lexer)?;
+                    let right = self.parse_command(lexer)?;
 
-                        Command::Or(Box::new(Command::Raw(left)), Box::new(right))
-                    }
-                    Token::Pipe => {
-                        lexer.advance();
-
-                        let right = self.parse_command(lexer)?;
-
-                        Command::Pipe(Box::new(Command::Raw(left)), Box::new(right))
-                    }
-                    _ => Command::Raw(left),
+                    Command::And(Box::new(Command::Raw(left)), Box::new(right))
                 }
+                Token::DoublePipe => {
+                    lexer.advance();
+
+                    let right = self.parse_command(lexer)?;
+
+                    Command::Or(Box::new(Command::Raw(left)), Box::new(right))
+                }
+                Token::Pipe => {
+                    lexer.advance();
+
+                    let right = self.parse_command(lexer)?;
+
+                    Command::Pipe(Box::new(Command::Raw(left)), Box::new(right))
+                }
+                _ => Command::Raw(left),
             }
         })
     }
