@@ -27,7 +27,11 @@ extern crate quick_error;
 #[macro_use]
 extern crate lazy_static;
 
+use std::path::Path;
+
+mod args;
 mod builtins;
+mod config;
 mod error;
 mod exec;
 mod input;
@@ -35,7 +39,16 @@ mod parsing;
 mod rsh;
 
 use error::Error;
+use rsh::RSH;
 
 fn main() -> Result<(), Error> {
-    rsh::run()
+    let config = args::parse_config();
+
+    let mut instance = RSH::new(config.clone());
+
+    if let Some(script_path) = config.script_path {
+        instance.run(&Path::new(&script_path))
+    } else {
+        instance.interactive()
+    }
 }

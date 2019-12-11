@@ -28,7 +28,7 @@ impl Runnable for Ast {
 impl Runnable for CommandRaw {
     fn exec(&self) -> Result<Child, Error> {
         if self.exe.is_empty() {
-            return Err(Error::Run);
+            return super::super::builtins::ok_true();
         }
 
         let mut cmd = self.clone();

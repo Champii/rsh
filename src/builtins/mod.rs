@@ -12,10 +12,10 @@ mod cd;
 type BuiltinFn = dyn Fn(&CommandRaw) -> Result<Child, Error>;
 type Builtins = HashMap<String, Box<BuiltinFn>>;
 
-fn ok_true() -> Result<Child, Error> {
+pub fn ok_true() -> Result<Child, Error> {
     Command::new("true").spawn().map_err(|_| Error::Run)
 }
-fn ok_false() -> Result<Child, Error> {
+pub fn ok_false() -> Result<Child, Error> {
     Command::new("false").spawn().map_err(|_| Error::Run)
 }
 

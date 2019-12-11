@@ -1,3 +1,6 @@
+use std::path::Path;
+
+use super::config::Config;
 use super::error::Error;
 use super::exec::Executor;
 use super::input::Input;
@@ -7,26 +10,65 @@ pub struct RSH {
     input: Input,
     executor: Executor,
     parser: Parser,
+    config: Config,
 }
 
 impl RSH {
-    pub fn new() -> Self {
+    pub fn new(config: Config) -> Self {
         Self {
             input: Input::new(),
             executor: Executor::new(),
             parser: Parser::new(),
+            config,
         }
     }
 
-    pub fn run(&mut self) -> Result<(), Error> {
+    fn load_conf(&mut self) -> Result<(), Error> {
+        //
+        let p = format!("{}/.rsh_history", env!("HOME").to_owned());
+        let filepath = Path::new(&p);
+
+        self.run(filepath)?;
+
+        Ok(())
+    }
+
+    pub fn run(&mut self, filepath: &Path) -> Result<(), Error> {
+        let file = std::fs::read_to_string(filepath)?;
+        let lines = file.split('\n').collect::<Vec<&str>>();
+
+        for line in lines {
+            if line.is_empty() {
+                continue;
+            }
+
+            let ast = self.parser.run(&line)?;
+
+            match self.executor.run(ast) {
+                Ok(_) => (),
+                Err(Error::Run) => {
+                    println!("Error: {}", Error::Run);
+                }
+                Err(err) => {
+                    println!("Error: {}", err);
+
+                    return Err(err);
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    pub fn interactive(&mut self) -> Result<(), Error> {
+        self.load_conf()?;
+
         self.input.init()?;
 
         loop {
             match self.input.aquire() {
                 Ok(line) => {
                     let ast = self.parser.run(&line.clone())?;
-
-                    // println!("{:#?}", ast);
 
                     match self.executor.run(ast) {
                         Ok(_) => (),
@@ -57,8 +99,4 @@ impl RSH {
 
         Ok(())
     }
-}
-
-pub fn run() -> Result<(), Error> {
-    RSH::new().run()
 }

@@ -52,7 +52,7 @@ impl Highlighter for EditorHelper {
     }
 
     fn highlight_hint<'h>(&self, hint: &'h str) -> Cow<'h, str> {
-        Owned(format!("\x1b[1m{}\x1b[m", hint))
+        Owned(format!("\x1b[1;32m{}\x1b[m", hint))
     }
 
     fn highlight<'l>(&self, line: &'l str, pos: usize) -> Cow<'l, str> {
