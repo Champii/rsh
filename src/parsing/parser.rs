@@ -47,7 +47,13 @@ impl Parser {
         }
 
         while lexer.token == Token::Text || lexer.token == Token::String {
-            items.push(lexer.slice());
+            let mut val = lexer.slice();
+
+            if lexer.token == Token::String {
+                val = &val[1..val.len() - 1];
+            }
+
+            items.push(val);
 
             lexer.advance();
         }

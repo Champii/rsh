@@ -50,8 +50,11 @@ fn alias(cmd: &CommandRaw) -> Result<Child, Error> {
     } else if cmd.args.len() == 1 {
         ALIAS.write().unwrap().remove(&cmd.args[0]);
     } else if cmd.args.len() == 2 {
-        let val = cmd.args[1].clone();
-        let val = val[1..val.len() - 1].to_string();
+        let mut val = cmd.args[1].clone();
+
+        if val.chars().nth(0).unwrap() == '"' {
+            val = val[1..val.len() - 1].to_string();
+        }
 
         ALIAS.write().unwrap().insert(cmd.args[0].clone(), val);
     } else {
