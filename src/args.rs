@@ -3,8 +3,8 @@ use clap::{App, Arg};
 use super::config::Config;
 
 pub fn parse_config() -> Config {
-    let matches = App::new("Rsh")
-        .version("0.0.1")
+    let matches = App::new("RSH")
+        .version("0.0.2")
         .author("Champii <contact@champii.io>")
         .about("Rust shell")
         .arg(

@@ -35,9 +35,9 @@ pub enum Token {
     #[regex = "#.*"]
     Comment,
 
-    #[regex = r#""([^"\\]|\\[tu])*""#]
+    #[regex = r#""([^"\\]|\\[tu]|\\)*""#]
     String,
 
-    #[regex = "[0-9a-zA-Z\\-/\\.=\\+:\\\\]+"]
+    #[regex = "[0-9a-zA-Z\\-/\\.=\\+\\[\\]:\\\\]+"]
     Text,
 }

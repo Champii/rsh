@@ -5,9 +5,10 @@ quick_error! {
         Lexer
         Builtin
         Run
+        Mutex
         Interrupt {}
         Io(err: std::io::Error) { from() }
         Readline(err: rustyline::error::ReadlineError) { from() }
-        Mutex
+        String(err: std::string::FromUtf8Error) { from() }
     }
 }

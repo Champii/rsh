@@ -119,11 +119,20 @@ impl Input {
     }
 
     pub fn aquire(&mut self) -> Result<String, Error> {
-        let p = "rsh #> ";
+        let p = super::builtins::export::EXPORTS
+            .read()
+            .unwrap()
+            .get("PROMPT")
+            .unwrap_or(&"rsh #> ".to_string())
+            .clone();
+
+        let p = unescape::unescape(&p).unwrap();
 
         if let Some(helper) = self.editor.helper_mut() {
-            helper.colored_prompt = format!("\x1b[1;33m{}\x1b[1;32m{}\x1b[0m", "rsh ", "#> ");
+            helper.colored_prompt = p.clone();
         };
+
+        let p = String::from_utf8(strip_ansi_escapes::strip(&p)?)?;
 
         self.editor
             .readline(&p)

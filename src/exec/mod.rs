@@ -17,10 +17,9 @@ impl Executor {
     pub fn run(&mut self, source: Option<Ast>) -> Result<(), Error> {
         self.source = source;
 
-        match &self.source {
-            Some(source) => source.exec()?,
-            None => return Err(Error::Run),
-        };
+        if let Some(source) = &self.source {
+            source.exec()?;
+        }
 
         Ok(())
     }

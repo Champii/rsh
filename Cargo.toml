@@ -1,6 +1,6 @@
 [package]
 name = "rsh"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Champii <contact@champii.io>"]
 edition = "2018"
 
@@ -13,3 +13,5 @@ quick-error = "1.2.2"
 logos = "0.9.7"
 lazy_static = "1.4.0"
 clap = "2.33.0"
+unescape = "0.1.0"
+strip-ansi-escapes = "0.1.0"
