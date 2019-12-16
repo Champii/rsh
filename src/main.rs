@@ -1,3 +1,4 @@
+#![feature(try_trait)]
 #![deny(clippy::all)]
 #![deny(clippy::pedantic)]
 #![warn(clippy::cargo)]
@@ -37,18 +38,20 @@ mod exec;
 mod input;
 mod parsing;
 mod rsh;
+mod tests;
 
+pub use config::Config;
 use error::Error;
-use rsh::RSH;
+pub use rsh::RSH;
 
 fn main() -> Result<(), Error> {
     let config = args::parse_config();
 
-    let mut instance = RSH::new(config.clone());
+    RSH::new(config.clone()).run()
 
-    if let Some(script_path) = config.script_path {
-        instance.run(&Path::new(&script_path))
-    } else {
-        instance.interactive()
-    }
+    // if let Some(script_path) = config.script_path {
+    //     instance.run(&Path::new(&script_path))
+    // } else {
+    //     instance.interactive()
+    // }
 }

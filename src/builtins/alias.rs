@@ -1,10 +1,10 @@
 use std::{
     collections::HashMap,
-    process::Child,
     sync::{Arc, RwLock},
 };
 
 use super::super::error::Error;
+use super::super::exec::Program;
 use super::super::parsing::CommandRaw;
 use super::BuiltinFn;
 
@@ -64,7 +64,7 @@ pub fn substitute(cmd: &mut CommandRaw) -> Result<(), Error> {
     Ok(())
 }
 
-fn alias(cmd: &CommandRaw) -> Result<Child, Error> {
+fn alias(cmd: &CommandRaw) -> Result<Box<dyn Program>, Error> {
     if cmd.args.is_empty() {
         print_alias()?;
     } else if cmd.args.len() == 1 {

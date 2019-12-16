@@ -1,11 +1,13 @@
 use clap::{App, Arg};
+use std::process::Command;
 
 use super::config::Config;
 
 pub fn parse_config() -> Config {
+    let version = format!("{} ({})", env!("VERGEN_SEMVER"), env!("VERGEN_SHA_SHORT"));
+
     let matches = App::new("RSH")
-        .version("0.0.2")
-        .author("Champii <contact@champii.io>")
+        .version(&*version)
         .about("Rust shell")
         .arg(
             Arg::with_name("script")

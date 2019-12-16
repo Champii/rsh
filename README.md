@@ -9,3 +9,4 @@ Todo:
 - Override env with exports
 - Background jobs
 - Scripting
+- Signals

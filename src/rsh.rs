@@ -10,72 +10,65 @@ pub struct RSH {
     input: Input,
     executor: Executor,
     parser: Parser,
-    #[allow(dead_code)]
-    config: Config,
+    pub config: Config,
 }
 
 impl RSH {
     pub fn new(config: Config) -> Self {
-        Self {
-            input: Input::new(),
+        let mut rsh = Self {
+            input: Input::new(config.script_path.clone()),
             executor: Executor::new(),
             parser: Parser::new(),
             config,
+        };
+
+        if rsh.config.script_path.is_none() {
+            rsh.load_conf().unwrap();
         }
+
+        rsh
     }
 
     fn load_conf(&mut self) -> Result<(), Error> {
-        let p = format!("{}/.rshrc", env!("HOME").to_owned());
+        let p = format!("{}/.rshrc", std::env::home_dir().unwrap().to_str().unwrap());
 
-        let filepath = Path::new(&p);
+        let config = Config {
+            script_path: Some(p.clone()),
+        };
 
-        Ok(match self.run(filepath) {
-            Ok(_) => (),
-            Err(_) => (),
-        })
+        Self::new(config).run()
     }
 
-    pub fn run(&mut self, filepath: &Path) -> Result<(), Error> {
-        let file = std::fs::read_to_string(filepath)?;
-        let lines = file.split('\n').collect::<Vec<&str>>();
-
-        for line in lines {
-            if line.is_empty() || line.chars().nth(0).unwrap() == '#' {
-                continue;
+    fn strip_comment(line: &str) -> &str {
+        if let Some(idx) = line.find("#") {
+            if idx == 0 {
+                ""
+            } else {
+                &line[idx - 1..]
             }
-
-            let ast = self.parser.run(&line)?;
-
-            match self.executor.run(ast) {
-                Ok(_) => (),
-                Err(Error::Run) => {
-                    println!("Error: {}", Error::Run);
-                }
-                Err(err) => {
-                    println!("Error: {}", err);
-
-                    return Err(err);
-                }
-            }
+        } else {
+            line
         }
-
-        Ok(())
     }
 
-    pub fn interactive(&mut self) -> Result<(), Error> {
-        self.load_conf()?;
-
+    pub fn run(&mut self) -> Result<(), Error> {
         self.input.init()?;
 
         loop {
             match self.input.aquire() {
                 Ok(line) => {
+                    let line = Self::strip_comment(&line);
+
+                    if line.is_empty() {
+                        continue;
+                    }
+
                     let ast = self.parser.run(&line.clone())?;
 
                     match self.executor.run(ast) {
                         Ok(_) => (),
-                        Err(Error::Run) => {
-                            println!("Error: {}", Error::Run);
+                        Err(Error::Run(s)) => {
+                            println!("Error Run: {}", s);
                         }
                         Err(err) => {
                             println!("Error: {}", err);
@@ -86,10 +79,11 @@ impl RSH {
                 }
                 Err(err) => match err {
                     Error::Interrupt => {}
-                    Error::Run
+                    Error::Run(..)
                     | Error::String(..)
                     | Error::Builtin
                     | Error::Mutex
+                    | Error::None(..)
                     | Error::Parser(..)
                     | Error::Lexer
                     | Error::Io(..)

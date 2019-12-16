@@ -8,6 +8,8 @@ use rustyline::{
 };
 use rustyline_derive::Helper;
 use std::borrow::Cow::{self, Borrowed, Owned};
+use std::ops::Try;
+use std::path::Path;
 
 use super::error::Error;
 
@@ -66,10 +68,12 @@ impl Highlighter for EditorHelper {
 
 pub struct Input {
     editor: Editor<EditorHelper>,
+    script: Option<Vec<String>>,
+    script_idx: usize,
 }
 
 impl Input {
-    pub fn new() -> Self {
+    pub fn new(script: Option<String>) -> Self {
         let config = Config::builder()
             .history_ignore_space(true)
             .completion_type(CompletionType::List)
@@ -99,14 +103,26 @@ impl Input {
 
         editor.set_helper(Some(h));
 
-        Self { editor }
+        let script = script.map(|x| {
+            std::fs::read_to_string(Path::new(&x))
+                .unwrap()
+                .split('\n')
+                .map(|y| y.to_string())
+                .collect::<Vec<_>>()
+        });
+
+        Self {
+            editor,
+            script,
+            script_idx: 0,
+        }
     }
 
     pub fn init(&mut self) -> Result<(), Error> {
-        match self
-            .editor
-            .load_history(&format!("{}/.rsh_history", env!("HOME").to_owned()))
-        {
+        match self.editor.load_history(&format!(
+            "{}/.rsh_history",
+            std::env::home_dir().unwrap().to_str().unwrap()
+        )) {
             Ok(_) => Ok(()),
             Err(_) => Ok(()),
         }
@@ -114,16 +130,30 @@ impl Input {
 
     pub fn exit(&mut self) -> Result<(), Error> {
         self.editor
-            .save_history(&format!("{}/.rsh_history", env!("HOME").to_owned()))
+            .save_history(&format!(
+                "{}/.rsh_history",
+                std::env::home_dir().unwrap().to_str().unwrap()
+            ))
             .map_err(Error::from)
     }
 
-    pub fn aquire(&mut self) -> Result<String, Error> {
+    fn aquire_script(&mut self) -> Result<String, Error> {
+        if let Some(script) = &self.script {
+            self.script_idx = self.script_idx + 1;
+
+            let res = script.get(self.script_idx - 1).cloned().into_result();
+            res.map_err(|x| Error::from(x))
+        } else {
+            Err(Error::Lexer)
+        }
+    }
+
+    fn aquire_readline(&mut self) -> Result<String, Error> {
         let p = super::builtins::export::EXPORTS
             .read()
             .unwrap()
             .get("PROMPT")
-            .unwrap_or(&"rsh #> ".to_string())
+            .unwrap_or(&"\x1b[1;33mrsh\x1b[1;32m $>\x1b[0m ".to_string())
             .clone();
 
         let p = unescape::unescape(&p).unwrap();
@@ -148,5 +178,13 @@ impl Input {
                 | ReadlineError::Utf8Error
                 | ReadlineError::Errno(..) => Error::from(err),
             })
+    }
+
+    pub fn aquire(&mut self) -> Result<String, Error> {
+        if self.script.is_some() {
+            self.aquire_script()
+        } else {
+            self.aquire_readline()
+        }
     }
 }

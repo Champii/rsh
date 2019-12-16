@@ -61,7 +61,12 @@ impl Parser {
                 val = &val[1..val.len() - 1];
             }
 
-            items.push(val);
+            let to_push = match unescape::unescape(val) {
+                Some(val) => val,
+                None => val.to_string(),
+            };
+
+            items.push(to_push);
 
             lexer.advance();
         }

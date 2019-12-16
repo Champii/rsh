@@ -1,12 +1,13 @@
 use std::{
     collections::HashMap,
-    process::Child,
     sync::{Arc, RwLock},
 };
 
 use super::super::error::Error;
+use super::super::exec::Program;
 use super::super::parsing::CommandRaw;
 use super::BuiltinFn;
+use super::{ok_false, ok_true};
 
 lazy_static! {
     pub static ref EXPORTS: Arc<RwLock<HashMap<String, String>>> =
@@ -34,7 +35,7 @@ fn print_exports() -> Result<(), Error> {
     Ok(())
 }
 
-fn export(cmd: &CommandRaw) -> Result<Child, Error> {
+fn export(cmd: &CommandRaw) -> Result<Box<dyn Program>, Error> {
     if cmd.args.is_empty() {
         print_exports()?;
     } else if cmd.args.len() == 1 {
@@ -65,10 +66,10 @@ fn export(cmd: &CommandRaw) -> Result<Child, Error> {
     } else {
         println!("Usage: export [name [\"value\"]]");
 
-        return super::ok_false();
+        return ok_false();
     }
 
-    super::ok_true()
+    ok_true()
 }
 
 pub fn builtin_export() -> Box<BuiltinFn> {
