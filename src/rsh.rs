@@ -31,7 +31,7 @@ impl RSH {
         let p = format!("{}/.rshrc", dirs::home_dir().unwrap().to_str().unwrap());
 
         let config = Config {
-            script_path: Some(p.clone()),
+            script_path: Some(p),
         };
 
         Self::new(config).run()
@@ -80,6 +80,7 @@ impl RSH {
                     Error::Run(..)
                     | Error::String(..)
                     | Error::Builtin
+                    | Error::Env(..)
                     | Error::Mutex
                     | Error::None(..)
                     | Error::Parser(..)

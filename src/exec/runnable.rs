@@ -48,6 +48,12 @@ fn pre_exec(cmd: &mut CommandRaw) -> Result<(), Error> {
         super::super::builtins::alias::substitute(cmd)?;
     }
 
+    super::super::builtins::export::substitute(&mut cmd.exe)?;
+
+    for arg in &mut cmd.args {
+        super::super::builtins::export::substitute(arg)?;
+    }
+
     Ok(())
 }
 

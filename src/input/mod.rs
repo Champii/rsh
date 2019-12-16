@@ -142,6 +142,7 @@ impl Input {
             self.script_idx += 1;
 
             let res = script.get(self.script_idx - 1).cloned().into_result();
+
             res.map_err(|x| Error::from(x))
         } else {
             Err(Error::Lexer)
@@ -149,14 +150,16 @@ impl Input {
     }
 
     fn aquire_readline(&mut self) -> Result<String, Error> {
-        let p = super::builtins::export::EXPORTS
-            .read()
-            .unwrap()
-            .get("PROMPT")
-            .unwrap_or(&"\x1b[1;33mrsh\x1b[1;32m $>\x1b[0m ".to_string())
+        let default_prompt = "\x1b[1;33mrsh\x1b[1;32m $>\x1b[0m ".to_string();
+
+        let p = super::builtins::export::get("PROMPT")
+            .unwrap_or(default_prompt.clone())
             .clone();
 
-        let p = unescape::unescape(&p).unwrap();
+        let p = match unescape::unescape(&p) {
+            Some(p) => p,
+            None => "PROMPT_ERROR > ".to_string(),
+        };
 
         if let Some(helper) = self.editor.helper_mut() {
             helper.colored_prompt = p.clone();
