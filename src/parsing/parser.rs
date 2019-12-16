@@ -28,7 +28,7 @@ impl Parser {
 
         let ast = self.parse_ast(&mut lexer)?;
 
-        println!("AST {:#?}", ast);
+        // println!("AST {:#?}", ast);
 
         Ok(Some(ast))
     }
@@ -83,7 +83,7 @@ impl Parser {
     }
 
     pub fn parse_command(&self, lexer: &mut Lexer<Token, &str>) -> Result<Command, Error> {
-        Ok(if lexer.token == Token::ParensOpen {
+        let left = if lexer.token == Token::ParensOpen {
             lexer.advance();
 
             let res = Command::Parenthesis(Box::new(self.parse_ast(lexer)?));
@@ -96,32 +96,32 @@ impl Parser {
 
             res
         } else {
-            let left = Self::parse_raw(lexer)?;
+            Command::Raw(Self::parse_raw(lexer)?)
+        };
 
-            match lexer.token {
-                Token::DoubleAnd => {
-                    lexer.advance();
+        Ok(match lexer.token {
+            Token::DoubleAnd => {
+                lexer.advance();
 
-                    let right = self.parse_command(lexer)?;
+                let right = self.parse_command(lexer)?;
 
-                    Command::And(Box::new(Command::Raw(left)), Box::new(right))
-                }
-                Token::DoublePipe => {
-                    lexer.advance();
-
-                    let right = self.parse_command(lexer)?;
-
-                    Command::Or(Box::new(Command::Raw(left)), Box::new(right))
-                }
-                Token::Pipe => {
-                    lexer.advance();
-
-                    let right = self.parse_command(lexer)?;
-
-                    Command::Pipe(Box::new(Command::Raw(left)), Box::new(right))
-                }
-                _ => Command::Raw(left),
+                Command::And(Box::new(left), Box::new(right))
             }
+            Token::DoublePipe => {
+                lexer.advance();
+
+                let right = self.parse_command(lexer)?;
+
+                Command::Or(Box::new(left), Box::new(right))
+            }
+            Token::Pipe => {
+                lexer.advance();
+
+                let right = self.parse_command(lexer)?;
+
+                Command::Pipe(Box::new(left), Box::new(right))
+            }
+            _ => left,
         })
     }
 }

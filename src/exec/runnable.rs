@@ -108,12 +108,7 @@ impl Runnable for CommandRaw {
         if let Some(f) = builtins.get(&cmd.exe) {
             f(&cmd)
         } else {
-            let mut prog = Program::new(&cmd.exe, cmd.args);
-
-            // prog.run()?;
-            // prog.wait().map_err(|e| Error::Run(e.to_string()))?;
-
-            Ok(prog)
+            Ok(Program::new(&cmd.exe, cmd.args))
         }
     }
 }
