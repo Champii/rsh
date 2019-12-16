@@ -121,7 +121,7 @@ impl Input {
     pub fn init(&mut self) -> Result<(), Error> {
         match self.editor.load_history(&format!(
             "{}/.rsh_history",
-            std::env::home_dir().unwrap().to_str().unwrap()
+            dirs::home_dir().unwrap().to_str().unwrap()
         )) {
             Ok(_) => Ok(()),
             Err(_) => Ok(()),
@@ -132,14 +132,14 @@ impl Input {
         self.editor
             .save_history(&format!(
                 "{}/.rsh_history",
-                std::env::home_dir().unwrap().to_str().unwrap()
+                dirs::home_dir().unwrap().to_str().unwrap()
             ))
             .map_err(Error::from)
     }
 
     fn aquire_script(&mut self) -> Result<String, Error> {
         if let Some(script) = &self.script {
-            self.script_idx = self.script_idx + 1;
+            self.script_idx += 1;
 
             let res = script.get(self.script_idx - 1).cloned().into_result();
             res.map_err(|x| Error::from(x))

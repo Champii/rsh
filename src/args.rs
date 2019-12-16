@@ -1,5 +1,4 @@
 use clap::{App, Arg};
-use std::process::Command;
 
 use super::config::Config;
 

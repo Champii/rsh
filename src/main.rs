@@ -28,8 +28,6 @@ extern crate quick_error;
 #[macro_use]
 extern crate lazy_static;
 
-use std::path::Path;
-
 mod args;
 mod builtins;
 mod config;

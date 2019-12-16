@@ -12,7 +12,7 @@ fn cd(cmd: &CommandRaw) -> Result<Box<dyn Program>, Error> {
 
         return super::ok_false();
     } else if cmd.args.is_empty() {
-        let arg = std::env::home_dir().unwrap();
+        let arg = dirs::home_dir().unwrap();
 
         let root = Path::new(&arg);
 

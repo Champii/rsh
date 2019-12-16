@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use super::config::Config;
 use super::error::Error;
 use super::exec::Executor;
@@ -30,7 +28,7 @@ impl RSH {
     }
 
     fn load_conf(&mut self) -> Result<(), Error> {
-        let p = format!("{}/.rshrc", std::env::home_dir().unwrap().to_str().unwrap());
+        let p = format!("{}/.rshrc", dirs::home_dir().unwrap().to_str().unwrap());
 
         let config = Config {
             script_path: Some(p.clone()),
