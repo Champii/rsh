@@ -6,7 +6,7 @@ use super::super::exec::Program;
 use super::super::parsing::CommandRaw;
 use super::BuiltinFn;
 
-fn cd(cmd: &CommandRaw) -> Result<Box<dyn Program>, Error> {
+fn cd(cmd: &CommandRaw) -> Result<Program, Error> {
     if cmd.args.len() > 1 {
         println!("Usage: cd [path]");
 

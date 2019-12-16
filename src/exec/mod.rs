@@ -7,17 +7,21 @@ mod runnable;
 
 pub use runnable::{Program, Runnable};
 
-pub fn ok_true() -> Result<Box<dyn Program>, Error> {
-    OSCommand::new("true")
-        .spawn()
-        .map_err(|e| Error::Run(e.to_string()))
-        .map(|x| Box::new(x) as Box<dyn Program>)
+pub fn ok_true() -> Result<Program, Error> {
+    let mut prog = Program::new("true", vec![]);
+
+    prog.run()?;
+    prog.wait()?;
+
+    Ok(prog)
 }
-pub fn ok_false() -> Result<Box<dyn Program>, Error> {
-    OSCommand::new("false")
-        .spawn()
-        .map_err(|e| Error::Run(e.to_string()))
-        .map(|x| Box::new(x) as Box<dyn Program>)
+pub fn ok_false() -> Result<Program, Error> {
+    let mut prog = Program::new("false", vec![]);
+
+    prog.run()?;
+    prog.wait()?;
+
+    Ok(prog)
 }
 
 pub struct Executor {

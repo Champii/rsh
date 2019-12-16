@@ -28,7 +28,7 @@ impl Parser {
 
         let ast = self.parse_ast(&mut lexer)?;
 
-        // println!("AST {:#?}", ast);
+        println!("AST {:#?}", ast);
 
         Ok(Some(ast))
     }

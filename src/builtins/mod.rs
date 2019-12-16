@@ -10,7 +10,7 @@ pub mod export;
 
 use super::exec::{ok_false, ok_true};
 
-type BuiltinFn = dyn Fn(&CommandRaw) -> Result<Box<dyn Program>, Error>;
+type BuiltinFn = dyn Fn(&CommandRaw) -> Result<Program, Error>;
 type Builtins = HashMap<String, Box<BuiltinFn>>;
 
 pub fn get_builtins() -> Builtins {

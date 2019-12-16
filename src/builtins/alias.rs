@@ -64,7 +64,7 @@ pub fn substitute(cmd: &mut CommandRaw) -> Result<(), Error> {
     Ok(())
 }
 
-fn alias(cmd: &CommandRaw) -> Result<Box<dyn Program>, Error> {
+fn alias(cmd: &CommandRaw) -> Result<Program, Error> {
     if cmd.args.is_empty() {
         print_alias()?;
     } else if cmd.args.len() == 1 {

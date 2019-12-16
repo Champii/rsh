@@ -15,7 +15,7 @@ fn print_exports() -> Result<(), Error> {
     Ok(())
 }
 
-fn export(cmd: &CommandRaw) -> Result<Box<dyn Program>, Error> {
+fn export(cmd: &CommandRaw) -> Result<Program, Error> {
     if cmd.args.is_empty() {
         print_exports()?;
     } else if cmd.args.len() == 1 {
@@ -57,7 +57,7 @@ pub fn get(var: &str) -> Result<String, Error> {
 pub fn substitute(s: &mut String) -> Result<(), Error> {
     lazy_static! {
         static ref RE: Regex = Regex::new(r"(\$\w+)").unwrap();
-        static ref REP: Regex = Regex::new(r"(\$\(\w+\))").unwrap();
+        static ref REP: Regex = Regex::new(r"(\$\{\w+\})").unwrap();
     }
 
     let mut s_cpy = s.clone();
