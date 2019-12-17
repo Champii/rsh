@@ -195,7 +195,7 @@ impl Input {
         Ok(p)
     }
 
-    pub fn exit(&mut self) -> Result<(), Error> {
+    pub fn save_history(&mut self) -> Result<(), Error> {
         self.editor
             .save_history(&format!(
                 "{}/.rsh_history",
@@ -223,6 +223,10 @@ impl Input {
             .readline(&p)
             .map(|line| {
                 self.editor.add_history_entry(line.as_str());
+
+                if self.save_history().is_err() {
+                    println!("Warning: Cannot save history");
+                }
 
                 line
             })

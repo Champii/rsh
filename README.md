@@ -8,7 +8,7 @@ Todo:
 - Redirects
 - Background jobs
 - Scripting
-    - Builtins (job, bg, for, if, ...)
+    - Builtins (job, bg, for, if, history, ...)
     - Eval (backticks)
     - Functions
 - Signals

@@ -94,8 +94,6 @@ impl RSH {
             };
         }
 
-        self.input.exit()?;
-
         Ok(())
     }
 }
