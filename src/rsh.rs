@@ -14,7 +14,7 @@ pub struct RSH {
 impl RSH {
     pub fn new(config: Config) -> Self {
         let mut rsh = Self {
-            input: Input::new(config.script_path.clone()),
+            input: Input::new(config.clone()),
             executor: Executor::new(),
             parser: Parser::new(),
             config,
@@ -32,6 +32,7 @@ impl RSH {
 
         let config = Config {
             script_path: Some(p),
+            input: None,
         };
 
         Self::new(config).run()

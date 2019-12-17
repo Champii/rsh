@@ -8,15 +8,16 @@ mod runnable;
 pub use runnable::{Program, Runnable};
 
 pub fn ok_true() -> Result<Program, Error> {
-    let mut prog = Program::new("true", vec![]);
+    let mut prog = Program::new(CommandRaw::new("true".to_string(), vec![]));
 
     prog.run()?;
     prog.wait()?;
 
     Ok(prog)
 }
+
 pub fn ok_false() -> Result<Program, Error> {
-    let mut prog = Program::new("false", vec![]);
+    let mut prog = Program::new(CommandRaw::new("false".to_string(), vec![]));
 
     prog.run()?;
     prog.wait()?;

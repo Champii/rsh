@@ -54,7 +54,17 @@ pub fn get(var: &str) -> Result<String, Error> {
     Ok(env::var(var)?)
 }
 
-pub fn substitute(s: &mut String) -> Result<(), Error> {
+pub fn substitute(cmd: &mut CommandRaw) -> Result<(), Error> {
+    substitute_one(&mut cmd.exe)?;
+
+    for arg in &mut cmd.args {
+        substitute_one(arg)?;
+    }
+
+    Ok(())
+}
+
+pub fn substitute_one(s: &mut String) -> Result<(), Error> {
     lazy_static! {
         static ref RE: Regex = Regex::new(r"(\$\w+)").unwrap();
         static ref REP: Regex = Regex::new(r"(\$\{\w+\})").unwrap();

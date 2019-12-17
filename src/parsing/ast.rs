@@ -7,6 +7,12 @@ pub struct CommandRaw {
     pub args: Vec<String>,
 }
 
+impl CommandRaw {
+    pub fn new(exe: String, args: Vec<String>) -> Self {
+        Self { exe, args }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub enum Command {
     Raw(CommandRaw),

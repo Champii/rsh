@@ -4,13 +4,19 @@ use rustyline::error::ReadlineError;
 use rustyline::highlight::{Highlighter, MatchingBracketHighlighter};
 use rustyline::hint::{Hinter, HistoryHinter};
 use rustyline::{
-    At, Cmd, ColorMode, CompletionType, Config, Context, EditMode, Editor, KeyPress, Movement, Word,
+    At, Cmd, ColorMode, CompletionType, Config as RConfig, Context, EditMode, Editor, KeyPress,
+    Movement, Word,
 };
 use rustyline_derive::Helper;
 use std::borrow::Cow::{self, Borrowed, Owned};
 use std::ops::Try;
-use std::path::Path;
+use std::{
+    collections::HashMap,
+    path::Path,
+    sync::{Arc, RwLock},
+};
 
+use super::config::Config;
 use super::error::Error;
 
 #[derive(Helper)]
@@ -66,15 +72,29 @@ impl Highlighter for EditorHelper {
     }
 }
 
+lazy_static! {
+    static ref SUBSTITUTIONS: Arc<RwLock<HashMap<String, String>>> = {
+        let mut map = HashMap::new();
+
+        map.insert("%u".to_string(), "$USER".to_string());
+        map.insert("%h".to_string(), r"`hostname`".to_string());
+        map.insert("%d".to_string(), "$PWD".to_string());
+        map.insert("%%".to_string(), "%".to_string());
+
+        Arc::new(RwLock::new(map))
+    };
+}
+
 pub struct Input {
     editor: Editor<EditorHelper>,
+    config: Config,
     script: Option<Vec<String>>,
     script_idx: usize,
 }
 
 impl Input {
-    pub fn new(script: Option<String>) -> Self {
-        let config = Config::builder()
+    pub fn new(config: Config) -> Self {
+        let rusty_config = RConfig::builder()
             .history_ignore_space(true)
             .completion_type(CompletionType::List)
             .edit_mode(EditMode::Emacs)
@@ -89,7 +109,7 @@ impl Input {
             colored_prompt: "".to_owned(),
         };
 
-        let mut editor = Editor::with_config(config);
+        let mut editor = Editor::with_config(rusty_config);
 
         editor.bind_sequence(
             KeyPress::ControlLeft,
@@ -103,16 +123,21 @@ impl Input {
 
         editor.set_helper(Some(h));
 
-        let script = script.map(|x| {
-            std::fs::read_to_string(Path::new(&x))
-                .unwrap()
-                .split('\n')
-                .map(|y| y.to_string())
-                .collect::<Vec<_>>()
-        });
+        let script = if let Some(input) = &config.input {
+            Some(input.split('\n').map(|y| y.to_string()).collect::<Vec<_>>())
+        } else {
+            config.script_path.clone().map(|x| {
+                std::fs::read_to_string(Path::new(&x))
+                    .unwrap()
+                    .split('\n')
+                    .map(|y| y.to_string())
+                    .collect::<Vec<_>>()
+            })
+        };
 
         Self {
             editor,
+            config,
             script,
             script_idx: 0,
         }
@@ -126,6 +151,46 @@ impl Input {
             Ok(_) => Ok(()),
             Err(_) => Ok(()),
         }
+    }
+
+    fn substitute_prompt(prompt: &mut String) -> Result<(), Error> {
+        let substitutions = match SUBSTITUTIONS.read() {
+            Ok(substitutions) => substitutions,
+            Err(_) => return Err(Error::Mutex),
+        };
+
+        for (modifier, out) in substitutions.iter() {
+            *prompt = prompt.replace(modifier, out);
+        }
+
+        super::builtins::export::substitute_one(prompt)?;
+
+        // super::exec::runnable::substitute_inner_exec_one(prompt)?;
+
+        Ok(())
+    }
+
+    fn get_prompt(&mut self) -> Result<String, Error> {
+        let default_prompt = "\x1b[1;33mrsh\x1b[1;32m $>\x1b[0m ".to_string();
+
+        let mut p = super::builtins::export::get("PROMPT")
+            .unwrap_or(default_prompt.clone())
+            .clone();
+
+        Self::substitute_prompt(&mut p)?;
+
+        let p = match unescape::unescape(&p) {
+            Some(p) => p,
+            None => "PROMPT_ERROR > ".to_string(),
+        };
+
+        if let Some(helper) = self.editor.helper_mut() {
+            helper.colored_prompt = p.clone();
+        };
+
+        let p = String::from_utf8(strip_ansi_escapes::strip(&p)?)?;
+
+        Ok(p)
     }
 
     pub fn exit(&mut self) -> Result<(), Error> {
@@ -150,22 +215,7 @@ impl Input {
     }
 
     fn aquire_readline(&mut self) -> Result<String, Error> {
-        let default_prompt = "\x1b[1;33mrsh\x1b[1;32m $>\x1b[0m ".to_string();
-
-        let p = super::builtins::export::get("PROMPT")
-            .unwrap_or(default_prompt.clone())
-            .clone();
-
-        let p = match unescape::unescape(&p) {
-            Some(p) => p,
-            None => "PROMPT_ERROR > ".to_string(),
-        };
-
-        if let Some(helper) = self.editor.helper_mut() {
-            helper.colored_prompt = p.clone();
-        };
-
-        let p = String::from_utf8(strip_ansi_escapes::strip(&p)?)?;
+        let p = self.get_prompt()?;
 
         self.editor
             .readline(&p)

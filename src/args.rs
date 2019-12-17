@@ -9,6 +9,13 @@ pub fn parse_config() -> Config {
         .version(&*version)
         .about("Rust shell")
         .arg(
+            Arg::with_name("exec")
+                .takes_value(true)
+                .short("e")
+                .help("Execute a piece of string")
+                .required(false),
+        )
+        .arg(
             Arg::with_name("script")
                 .help("Script to run")
                 .index(1)
@@ -20,5 +27,9 @@ pub fn parse_config() -> Config {
         .value_of("script")
         .map(std::string::ToString::to_string);
 
-    Config { script_path }
+    let input = matches
+        .value_of("exec")
+        .map(std::string::ToString::to_string);
+
+    Config { script_path, input }
 }

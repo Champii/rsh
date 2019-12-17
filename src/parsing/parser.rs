@@ -52,11 +52,14 @@ impl Parser {
     pub fn parse_raw(lexer: &mut Lexer<Token, &str>) -> Result<CommandRaw, Error> {
         let mut items = vec![];
 
-        if lexer.token != Token::Text {
-            return Err(Error::Parser("Expected text".to_string()));
+        if lexer.token != Token::Text && lexer.token != Token::SubExec {
+            return Err(Error::Parser("Expected command".to_string()));
         }
 
-        while lexer.token == Token::Text || lexer.token == Token::String {
+        while lexer.token == Token::Text
+            || lexer.token == Token::String
+            || lexer.token == Token::SubExec
+        {
             let mut val = lexer.slice();
 
             if lexer.token == Token::String {

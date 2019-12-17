@@ -9,6 +9,7 @@ mod tests_mod {
             if let Some(ext) = path.extension() {
                 if ext == "sh" {
                     RSH::new(Config {
+                        input: None,
                         script_path: Some(path.to_str().unwrap().to_string()),
                     })
                     .run()

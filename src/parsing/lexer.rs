@@ -34,6 +34,10 @@ pub enum Token {
 
     #[regex = "#.*"]
     Comment,
+
+    #[regex = r#"`([^`\\]|\\[tu]|\\)*`"#]
+    SubExec,
+
     #[regex = r#""([^"\\]|\\[tu]|\\)*""#]
     String,
 
