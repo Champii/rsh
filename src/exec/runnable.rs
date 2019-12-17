@@ -139,9 +139,10 @@ pub fn substitute_inner_exec_one(s: String) -> Result<Vec<String>, Error> {
                 continue;
             };
 
-            // let out = unescape::unescape(out.stdout).unwrap();
-            let parsed = String::from_utf8(out.stdout)
+            let mut parsed = String::from_utf8(out.stdout)
                 .map_err(|_| Error::Run("Cannot read stdout".to_string()))?;
+
+            parsed = parsed.replace('\n', "");
 
             let escaped = match &unescape::unescape(&parsed) {
                 Some(escaped) => escaped.clone(),
@@ -160,9 +161,8 @@ pub fn substitute_inner_exec_one(s: String) -> Result<Vec<String>, Error> {
     // TODO: handle multiline output (create new CommandRaw for that)
     let mut splited = s_cpy
         .to_string()
-        .split(|c| c == '\n' || c == ' ')
+        .split(|c| c == ' ')
         .map(|x| (*x).to_string())
-        .filter(|x| !x.is_empty())
         .collect::<Vec<String>>();
 
     Ok(splited)

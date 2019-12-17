@@ -20,7 +20,7 @@ impl RSH {
             config,
         };
 
-        if rsh.config.script_path.is_none() {
+        if rsh.config.script_path.is_none() && rsh.config.input.is_none() {
             rsh.load_conf().unwrap();
         }
 

@@ -165,7 +165,7 @@ impl Input {
 
         super::builtins::export::substitute_one(prompt)?;
 
-        // super::exec::runnable::substitute_inner_exec_one(prompt)?;
+        *prompt = super::exec::substitute_inner_exec_one(prompt.clone())?.join(" ");
 
         Ok(())
     }

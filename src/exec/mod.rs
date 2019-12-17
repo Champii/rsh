@@ -5,7 +5,7 @@ use super::parsing::*;
 
 mod runnable;
 
-pub use runnable::{Program, Runnable};
+pub use runnable::{substitute_inner_exec_one, Program, Runnable};
 
 pub fn ok_true() -> Result<Program, Error> {
     let mut prog = Program::new(CommandRaw::new("true".to_string(), vec![]));
