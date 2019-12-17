@@ -1,6 +1,6 @@
 use os_pipe::pipe;
 use regex::Regex;
-use std::process::{Child, Command as OSCommand, ExitStatus, Stdio};
+use std::process::{Child, ChildStdout, Command as OSCommand, ExitStatus, Stdio};
 
 use super::super::config::Config;
 use super::super::error::Error;
@@ -36,6 +36,19 @@ impl Program {
 
         Ok(())
     }
+
+    // pub fn run_piped(&mut self, input: ChildStdout) -> Result<(), Error> {
+    //     self.prog.stdin(input);
+    //     match self.prog.spawn() {
+    //         Ok(child) => {
+    //             // child.stdin.unwrap().write_all(input);
+    //             self.child = Some(child);
+    //         }
+    //         Err(_) => println!("Command not found: {}", self.cmd.exe),
+    //     };
+
+    //     Ok(())
+    // }
 
     pub fn wait(&mut self) -> Result<ExitStatus, Error> {
         match &mut self.child {
@@ -202,41 +215,6 @@ impl Runnable for CommandRaw {
     }
 }
 
-fn exec_pipe(cmd1: &CommandRaw, cmd2: &CommandRaw) -> Result<Program, Error> {
-    // if cmd1.exe.is_empty() {
-    //     return super::ok_true();
-    // }
-
-    // let mut cmd = self.clone();
-
-    // if cmd.exe.chars().nth(0).unwrap() == '\\' {
-    //     cmd.exe = cmd.exe[1..].to_string();
-    // } else {
-    //     super::super::builtins::alias::substitute(&mut cmd)?;
-    // }
-
-    // let builtins = super::super::builtins::get_builtins();
-
-    // if let Some(f) = builtins.get(&cmd.exe) {
-    //     f(&cmd)
-    // } else {
-    //     let child = OSCommand::new(&cmd.exe)
-    //         .args(&cmd.args)
-    //         .spawn()
-    //         .map_err(|_| Error::Run)?;
-
-    //     Ok(Box::new(child))
-    // }
-
-    // let (mut reader, writer) = pipe().unwrap();
-    // let writer_clone = writer.try_clone().unwrap();
-    // child.stdout(writer);
-    // child.stderr(writer_clone);
-
-    // let mut handle = child.spawn().unwrap();
-    Err(Error::Run(String::new()))
-}
-
 impl Runnable for Command {
     fn exec(&self) -> Result<Program, Error> {
         match self {
@@ -271,14 +249,37 @@ impl Runnable for Command {
 
                 right.exec()
             }
-            Self::Pipe(left, _right) => {
-                let child = left.exec()?;
+            Self::Pipe(left, right) => {
+                if let Self::Raw(left_cmd) = &**left {
+                    if let Self::Raw(right_cmd) = &**right {
+                        let mut left_prog = left_cmd.exec()?;
 
-                // Here's the interesting part. Open a pipe, copy its write end, and
-                // give both copies to the child.
-                // let mut child2 = right.exec()?;
+                        left_prog.prog.stdout(Stdio::piped());
 
-                Ok(child)
+                        left_prog.run()?;
+
+                        let mut right_prog = right_cmd.exec()?;
+
+                        let to_run = right_prog
+                            .prog
+                            .stdin(left_prog.child.unwrap().stdout.unwrap());
+
+                        let right_child = to_run.spawn()?;
+
+                        // TODO: Fixme, very ugly
+                        let definitive = Program {
+                            child: Some(right_child),
+                            prog: right_prog.prog,
+                            cmd: right_cmd.clone(),
+                        };
+
+                        return Ok(definitive);
+                    } else {
+                        return right.exec();
+                    }
+                }
+
+                Err(Error::Run("Cannot pipe".to_string()))
             }
         }
     }
