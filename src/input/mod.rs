@@ -127,11 +127,13 @@ impl Input {
             Some(input.split('\n').map(|y| y.to_string()).collect::<Vec<_>>())
         } else {
             config.script_path.clone().map(|x| {
-                std::fs::read_to_string(Path::new(&x))
-                    .unwrap()
-                    .split('\n')
-                    .map(|y| y.to_string())
-                    .collect::<Vec<_>>()
+                match std::fs::read_to_string(Path::new(&x)) {
+                    Ok(s) => s,
+                    Err(_) => String::new(),
+                }
+                .split('\n')
+                .map(|y| y.to_string())
+                .collect::<Vec<_>>()
             })
         };
 

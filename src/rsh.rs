@@ -21,7 +21,9 @@ impl RSH {
         };
 
         if rsh.config.script_path.is_none() && rsh.config.input.is_none() {
-            rsh.load_conf().unwrap();
+            if rsh.load_conf().is_err() {
+                println!("Warning: Cannot load .rshrc");
+            }
         }
 
         rsh
