@@ -5,6 +5,7 @@ Todo:
 ---
 
 - Pipes
+- Redirects
 - Background jobs
 - Scripting
     - Builtins (job, bg, for, if, ...)
