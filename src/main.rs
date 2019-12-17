@@ -46,10 +46,4 @@ fn main() -> Result<(), Error> {
     let config = args::parse_config();
 
     RSH::new(config.clone()).run()
-
-    // if let Some(script_path) = config.script_path {
-    //     instance.run(&Path::new(&script_path))
-    // } else {
-    //     instance.interactive()
-    // }
 }

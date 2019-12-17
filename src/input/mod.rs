@@ -87,7 +87,7 @@ lazy_static! {
 
 pub struct Input {
     editor: Editor<EditorHelper>,
-    config: Config,
+    // config: Config,
     script: Option<Vec<String>>,
     script_idx: usize,
 }
@@ -139,7 +139,7 @@ impl Input {
 
         Self {
             editor,
-            config,
+            // config,
             script,
             script_idx: 0,
         }

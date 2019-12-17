@@ -1,11 +1,13 @@
-use std::process::Command as OSCommand;
-
 use super::error::Error;
 use super::parsing::*;
 
+mod program;
 mod runnable;
+mod substitute;
 
-pub use runnable::{substitute_inner_exec_one, Program, Runnable};
+pub use program::Program;
+pub use runnable::Runnable;
+pub use substitute::substitute_inner_exec_one;
 
 pub fn ok_true() -> Result<Program, Error> {
     let mut prog = Program::new(CommandRaw::new("true".to_string(), vec![]));
