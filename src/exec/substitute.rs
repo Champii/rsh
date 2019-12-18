@@ -74,7 +74,11 @@ pub fn substitute_inner_exec_one_reg(s_cpy: &mut String, matched: &str) -> Resul
     let mut parsed =
         String::from_utf8(out.stdout).map_err(|_| Error::Run("Cannot read stdout".to_string()))?;
 
-    parsed = parsed.replace('\n', "");
+    if parsed.ends_with('\n') {
+        parsed = parsed[..parsed.len() - 1].to_string();
+    }
+
+    parsed = parsed.replace('\n', " ");
 
     let escaped = match &unescape::unescape(&parsed) {
         Some(escaped) => escaped.clone(),
@@ -131,6 +135,8 @@ pub fn pre_exec(cmd: &mut CommandRaw) -> Result<(), Error> {
     super::super::builtins::export::substitute(cmd)?;
 
     substitute_inner_exec(cmd)?;
+
+    // println!("PREEXEC {:#?}", cmd);
 
     Ok(())
 }

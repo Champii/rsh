@@ -52,7 +52,8 @@ mod tests_mod {
             // "ls > /tmp/lol",
             // backticks
             "ls `echo /`",
-            // "ls `find src`",
+            "echo `ls`",
+            "ls `find src`",
             // Interpolation
             "echo $USER",
             "echo ${USER}",
