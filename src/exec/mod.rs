@@ -33,6 +33,8 @@ pub struct Executor {
 
 impl Executor {
     pub fn new() -> Self {
+        std::env::set_var("?", "0");
+
         Self { source: None }
     }
 
@@ -40,7 +42,13 @@ impl Executor {
         self.source = source;
 
         if let Some(source) = &self.source {
-            source.exec()?;
+            let mut prog = source.exec()?;
+
+            if let Ok(child) = prog.wait() {
+                if let Some(code) = child.code() {
+                    std::env::set_var("?", code.to_string());
+                }
+            }
         }
 
         Ok(())

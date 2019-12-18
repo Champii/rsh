@@ -32,9 +32,9 @@ mod args;
 mod builtins;
 mod config;
 mod error;
-mod exec;
+pub mod exec;
 mod input;
-mod parsing;
+pub mod parsing;
 mod rsh;
 mod tests;
 
@@ -44,6 +44,8 @@ pub use rsh::RSH;
 
 fn main() -> Result<(), Error> {
     let config = args::parse_config();
+
+    ctrlc::set_handler(move || {}).expect("Error setting Ctrl-C handler");
 
     RSH::new(config.clone()).run()
 }

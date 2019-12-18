@@ -76,9 +76,10 @@ lazy_static! {
     static ref SUBSTITUTIONS: Arc<RwLock<HashMap<String, String>>> = {
         let mut map = HashMap::new();
 
-        map.insert("%u".to_string(), "$USER".to_string());
+        map.insert("%u".to_string(), r"$(whoami)".to_string());
         map.insert("%h".to_string(), r"`hostname`".to_string());
-        map.insert("%d".to_string(), "$PWD".to_string());
+        map.insert("%d".to_string(), r"`pwd`".to_string());
+        map.insert("%?".to_string(), "$?".to_string());
         map.insert("%%".to_string(), "%".to_string());
 
         Arc::new(RwLock::new(map))

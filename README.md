@@ -9,6 +9,7 @@ Todo:
 - Background jobs
 - Scripting
     - Builtins (job, bg, for, if, history, ...)
-    - Eval (backticks)
+    - Plugins
     - Functions
 - Signals
+- In-String interpolation with ${}

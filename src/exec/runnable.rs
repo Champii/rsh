@@ -13,12 +13,12 @@ impl Runnable for Ast {
         let mut last_prog = None;
 
         for cmd in &self.0 {
-            let mut prog = cmd.exec()?;
-            let code = prog.wait()?.code().unwrap();
+            let prog = cmd.exec()?;
+            // let code = prog.wait()?.code().unwrap();
 
-            if code != 0 {
-                return Ok(prog);
-            }
+            // if code != 0 {
+            //     return Ok(prog);
+            // }
 
             last_prog = Some(prog);
         }
@@ -66,6 +66,18 @@ impl Runnable for Command {
 
                 if left_code != 0 {
                     return Ok(left_prog);
+                    // let mut right = right.clone();
+
+                    // right.replace_left(Box::new(Self::Raw(CommandRaw::new(
+                    //     "false".to_string(),
+                    //     vec![],
+                    // ))));
+
+                    // if let Self::Raw(_) = &*right {
+                    //     return Ok(left_prog);
+                    // } else {
+                    //     return right.exec();
+                    // }
                 }
 
                 right.exec()
@@ -76,7 +88,18 @@ impl Runnable for Command {
                 let code = left_prog.wait()?.code().unwrap();
 
                 if code == 0 {
-                    return Ok(left_prog);
+                    let mut right = right.clone();
+
+                    right.replace_left(Box::new(Self::Raw(CommandRaw::new(
+                        "true".to_string(),
+                        vec![],
+                    ))));
+
+                    if let Self::Raw(_) = &*right {
+                        return Ok(left_prog);
+                    } else {
+                        return right.exec();
+                    }
                 }
 
                 right.exec()
